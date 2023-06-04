@@ -1,17 +1,25 @@
 {
   "name": "nodejs_projects",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon index"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VasylMolnar/nodeJS_projects.git"
+  },
+  "bugs": {
+    "url": "https://github.com/VasylMolnar/nodeJS_projects/issues"
+  },
   "dependencies": {
     "commander": "^10.0.1",
     "nanoid": "^4.0.2",
     "nodemon": "^2.0.22"
-  }
+  },
+  "devDependencies": {},
+  "description": ""
 }
