@@ -18,8 +18,8 @@
   "dependencies": {
     "commander": "^10.0.1",
     "nanoid": "^4.0.2",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "uuid": "^9.0.0"
   },
-  "devDependencies": {},
   "description": ""
 }
