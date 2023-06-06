@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
 require('dotenv').config()
+const cookieParser = require('cookie-parser')
 const app = express()
 
 const accessLogStream = require('./middleware/accessLogStream/accessLogStream')
@@ -15,10 +16,13 @@ dbConnect()
 //middleware
 app.use(cors())
 app.use(express.json())
+//cookies parser
+app.use(cookieParser())
 app.use(morgan('combined', { stream: accessLogStream }))
 
 //routers
 app.use('/contacts', require('./routes/contacts'))
+app.use('/users', require('./routes/users'))
 
 app.use('*', (req, res) => {
     res.status(404).json({ error: '404 Not Found' })
