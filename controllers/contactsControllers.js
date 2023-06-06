@@ -1,5 +1,3 @@
-const fs = require('fs').promises
-const { v4: uuidv4 } = require('uuid')
 const Contacts = require('../models/Contacts')
 const contactSchema = require('../utils/contacts')
 
