@@ -16,8 +16,12 @@ dbConnect()
 //middleware
 app.use(cors())
 app.use(express.json())
+app.use(express.static('public'))
+
 //cookies parser
 app.use(cookieParser())
+
+//log
 app.use(morgan('combined', { stream: accessLogStream }))
 
 //routers
@@ -25,7 +29,7 @@ app.use('/contacts', require('./routes/contacts'))
 app.use('/users', require('./routes/users'))
 
 app.use('*', (req, res) => {
-    res.status(404).json({ error: '404 Not Found' })
+    res.status(404).json({ error: '404 Not Found.' })
 })
 
 mongoose.connection.once('open', () => {
