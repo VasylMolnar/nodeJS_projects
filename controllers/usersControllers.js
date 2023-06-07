@@ -2,6 +2,9 @@ const Users = require('../models/Users')
 const { registerSchema, loginSchema } = require('../utils/users')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const Jimp = require('jimp')
+const path = require('path')
+const fs = require('fs/promises')
 
 const current = async (req, res) => {
     if (!req.params.id) {
@@ -127,9 +130,47 @@ const logout = async (req, res) => {
     res.sendStatus(204)
 }
 
+const updateAvatar = async function (req, res) {
+    // описуєм шлях звідки куди переміщаєм аватар
+    const userID = req.params.id
+    const { path: tmpPath, originalname } = req.file
+    const [extension] = originalname.split('.').reverse()
+    const newNameAvatar = `${userID}.${extension}` // нове ім'я
+    const avatarURL = path.join('public', 'avatars', newNameAvatar)
+
+    // опрацьовує аватар ( автообрізка > вирівнює відповідно до заданої ширини та висоти
+    // > якість > перезаписує зображення)
+    const image = await Jimp.read(tmpPath)
+    await image
+        .autocrop()
+        .cover(250, 250, Jimp.HORIZONTAL_ALIGN_LEFT | Jimp.VERTICAL_ALIGN_TOP)
+        .quality(75)
+        .writeAsync(avatarURL)
+
+    try {
+        // оновлюєм шлях до аватарки
+        const avatarURL = path.join('public', 'avatars', newNameAvatar)
+        await Users.findByIdAndUpdate(userID, { avatarURL })
+
+        return res.json({
+            status: 'Success',
+            code: 200,
+            message: 'Image uploaded successfully',
+            data: {
+                avatarURL,
+            },
+        })
+    } catch (error) {
+        // видаляєм через unlink файл і прокидаєм помилку
+        await fs.unlink(tmpPath)
+        throw error
+    }
+}
+
 module.exports = {
     current,
     register,
     login,
     logout,
+    updateAvatar,
 }
