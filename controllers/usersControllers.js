@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken')
 const Jimp = require('jimp')
 const path = require('path')
 const fs = require('fs/promises')
+const { v4 } = require('uuid')
+const sendEmail = require('../middleware/sendEmail')
 
 const current = async (req, res) => {
     if (!req.params.id) {
@@ -38,8 +40,20 @@ const register = async (req, res) => {
         return res.status(409).json({ message: 'Email is already in use' }) //Conflict
 
     try {
+        //create Random v4() to verify EMAIL
+        const verificationEmail = v4()
+
         const hashedPwd = await bcrypt.hash(req.body.password, 10)
-        const newUser = await Users.create({ ...req.body, password: hashedPwd })
+
+        const newUser = await Users.create({
+            ...req.body,
+            password: hashedPwd,
+            verificationEmail,
+        })
+
+        //send Message to verify EMAIL
+        await sendEmail(newUser.email, verificationEmail)
+
         res.status(201).json(newUser)
     } catch (e) {
         res.status(500).send(e.message)
@@ -130,7 +144,7 @@ const logout = async (req, res) => {
     res.sendStatus(204)
 }
 
-const updateAvatar = async function (req, res) {
+const updateAvatar = async (req, res) => {
     // описуєм шлях звідки куди переміщаєм аватар
     const userID = req.params.id
     const { path: tmpPath, originalname } = req.file
@@ -167,10 +181,53 @@ const updateAvatar = async function (req, res) {
     }
 }
 
+const verifyEmail = async (req, res) => {
+    const { verificationEmail } = req.params
+
+    const user = await Users.findOne({ verificationEmail })
+
+    if (!user) {
+        throw createError(404, 'User not found')
+    }
+
+    // якщо є такий користувач оновлюєм запис
+    await Users.findByIdAndUpdate(user._id, {
+        verificationEmail: null,
+        verify: true,
+    })
+
+    return res.json({
+        status: 'Success',
+        code: 200,
+        message: 'Verification successful',
+    })
+}
+
+const resendVerifyEmail = async (req, res) => {
+    if (!req.body.email) return res.status(401)
+
+    const { email } = req.body
+    const user = await Users.findOne({ email })
+
+    if (!user) {
+        throw createError(404)
+    }
+
+    await service.sendEmail(email, user.verificationToken)
+
+    return res.json({
+        status: 'Success',
+        code: 200,
+        message: 'Verification email sent',
+    })
+}
+
 module.exports = {
     current,
     register,
     login,
     logout,
     updateAvatar,
+    verifyEmail,
+    resendVerifyEmail,
 }

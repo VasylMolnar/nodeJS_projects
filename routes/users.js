@@ -16,4 +16,8 @@ router.put(
     usersControllers.updateAvatar
 ) // роут для оновлення аватарки користувача
 
+router.get('/verify/:verificationToken', usersControllers.verifyEmail) // верифікація користувача
+
+router.post('/verify', usersControllers.resendVerifyEmail) // запит повторної верифікації користувача
+
 module.exports = router

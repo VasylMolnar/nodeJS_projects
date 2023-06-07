@@ -36,7 +36,16 @@ const usersSchema = new Schema({
 
     avatarURL: {
         type: String,
-        required: true,
+    },
+
+    verifyEmail: {
+        type: Boolean,
+        default: false,
+    },
+
+    verificationEmail: {
+        type: String,
+        required: [true, 'Verify Email is required'],
     },
 })
 
