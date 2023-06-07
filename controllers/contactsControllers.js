@@ -12,12 +12,6 @@ const getAllContacts = async (req, res) => {
 }
 
 const createContact = async (req, res) => {
-    if (!req?.body.name || !req.body.email || !req.body.phone) {
-        return res
-            .status(400)
-            .json({ message: 'name, email, phone are required' })
-    }
-
     const { error } = contactSchema.validate(req.body)
     if (error) {
         return res.status(400).send(error.message)
